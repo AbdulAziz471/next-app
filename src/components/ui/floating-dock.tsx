@@ -15,16 +15,18 @@ import {
   useTransform,
 } from "framer-motion";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
-export const FloatingDock = ({
-  items,
-  desktopClassName,
-  mobileClassName,
-}: {
+interface FloatingDockProps {
   items: { title: string; icon: React.ReactNode; href: string }[];
   desktopClassName?: string;
   mobileClassName?: string;
+}
+
+export const FloatingDock: React.FC<FloatingDockProps> = ({
+  items,
+  desktopClassName,
+  mobileClassName,
 }) => {
   return (
     <>
@@ -34,14 +36,17 @@ export const FloatingDock = ({
   );
 };
 
-const FloatingDockMobile = ({
-  items,
-  className,
-}: {
+interface FloatingDockMobileProps {
   items: { title: string; icon: React.ReactNode; href: string }[];
   className?: string;
+}
+
+const FloatingDockMobile: React.FC<FloatingDockMobileProps> = ({
+  items,
+  className,
 }) => {
   const [open, setOpen] = useState(false);
+
   return (
     <div className={cn("relative block md:hidden", className)}>
       <AnimatePresence>
@@ -89,20 +94,23 @@ const FloatingDockMobile = ({
   );
 };
 
-const FloatingDockDesktop = ({
-  items,
-  className,
-}: {
+interface FloatingDockDesktopProps {
   items: { title: string; icon: React.ReactNode; href: string }[];
   className?: string;
+}
+
+const FloatingDockDesktop: React.FC<FloatingDockDesktopProps> = ({
+  items,
+  className,
 }) => {
-  let mouseX = useMotionValue(Infinity);
+  const mouseX = useMotionValue(Infinity);
+
   return (
     <motion.div
       onMouseMove={(e) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
       className={cn(
-        "mx-auto hidden md:flex h-16 gap-4 items-end  rounded-2xl bg-gray-50 dark:bg-neutral-900 px-4 pb-3",
+        "mx-auto hidden md:flex h-16 gap-4 items-end rounded-2xl bg-gray-50 dark:bg-neutral-900 px-4 pb-3",
         className
       )}
     >
@@ -113,52 +121,48 @@ const FloatingDockDesktop = ({
   );
 };
 
-function IconContainer({
-  mouseX,
-  title,
-  icon,
-  href,
-}: {
+interface IconContainerProps {
   mouseX: MotionValue;
   title: string;
   icon: React.ReactNode;
   href: string;
-}) {
-  let ref = useRef<HTMLDivElement>(null);
+}
 
-  let distance = useTransform(mouseX, (val) => {
-    let bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
+const IconContainer: React.FC<IconContainerProps> = ({
+  mouseX,
+  title,
+  icon,
+  href,
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
 
+  const distance = useTransform(mouseX, (val) => {
+    const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
     return val - bounds.x - bounds.width / 2;
   });
 
-  let widthTransform = useTransform(distance, [-150, 0, 150], [40, 80, 40]);
-  let heightTransform = useTransform(distance, [-150, 0, 150], [40, 80, 40]);
+  const widthTransform = useTransform(distance, [-150, 0, 150], [40, 80, 40]);
+  const heightTransform = useTransform(distance, [-150, 0, 150], [40, 80, 40]);
+  const widthTransformIcon = useTransform(distance, [-150, 0, 150], [20, 40, 20]);
+  const heightTransformIcon = useTransform(distance, [-150, 0, 150], [20, 40, 20]);
 
-  let widthTransformIcon = useTransform(distance, [-150, 0, 150], [20, 40, 20]);
-  let heightTransformIcon = useTransform(
-    distance,
-    [-150, 0, 150],
-    [20, 40, 20]
-  );
-
-  let width = useSpring(widthTransform, {
+  const width = useSpring(widthTransform, {
     mass: 0.1,
     stiffness: 150,
     damping: 12,
   });
-  let height = useSpring(heightTransform, {
+  const height = useSpring(heightTransform, {
     mass: 0.1,
     stiffness: 150,
     damping: 12,
   });
 
-  let widthIcon = useSpring(widthTransformIcon, {
+  const widthIcon = useSpring(widthTransformIcon, {
     mass: 0.1,
     stiffness: 150,
     damping: 12,
   });
-  let heightIcon = useSpring(heightTransformIcon, {
+  const heightIcon = useSpring(heightTransformIcon, {
     mass: 0.1,
     stiffness: 150,
     damping: 12,
@@ -196,4 +200,4 @@ function IconContainer({
       </motion.div>
     </Link>
   );
-}
+};
